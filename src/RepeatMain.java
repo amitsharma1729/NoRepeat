@@ -1,4 +1,8 @@
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
 
 public class RepeatMain {
@@ -6,8 +10,16 @@ public class RepeatMain {
 
 	public static void main(String[] args) {
 		Scanner in = new Scanner(System.in);
-		int date, month, year, level = 1, optionNo, startYear, endYear, lastDayOfMonth, dayNoCal, monthNoCal, yearNoCal;
-		boolean isNumRepeating = false;
+		int date, month, year, level = 1, optionNo, startYear, endYear, lastDayOfMonth, dayNoCal, monthNoCal, yearNoCal,
+			classifiedNo1, classifiedNo2, finalNo, currentTriplet;
+		List<Integer> availableNo = new ArrayList<>();
+		List<Integer> missingNo = new ArrayList<>();
+		List<Integer> availableTriplets = new ArrayList<>();
+		List<Integer> missingTriplets = new ArrayList<>();
+		boolean isNumRepeating = false, tripletPresent1 = false, tripletPresent2 = false, tripletPresent3 = false;
+		int[] triplets = new int[]{438, 951, 276, 492, 357, 816, 456, 258};
+		String classifiedNo;
+		Map<String, ArrayList> dateSets = new HashMap<>();
 		System.out.println("Select your mode of operation: ");
 		System.out.println("1: Automatic date");
 		System.out.println("2: Check validty of date");
@@ -21,20 +33,60 @@ public class RepeatMain {
 			month = in.nextInt();
 			System.out.println("enter year: ");
 			year = in.nextInt();
+			System.out.println("Data for date : "+date+"/"+month+"/"+year);
 			date = findSum(date, level);
 			month = findSum(month, level);
 			year = findSum(year, level);
 			// System.out.println("date: "+date+" mont: "+month+" year: "+year);
+			classifiedNo1 = date;
 			digits.add(date);
 			digits.add(month);
 			digits.add(year);
-			digits.add(findSum(date + month + year, level + 1));
+			finalNo = findSum(date + month + year, level + 1);
+			classifiedNo2 = finalNo;
+			digits.add(finalNo);
 			System.out.println("Missing no:-");
 			for (int i = 1; i < 10; i++) {
 				if (!digits.contains(i)) {
-					System.out.print(i + " ");
+					missingNo.add(i);
+				}
+				else {
+					availableNo.add(i);
 				}
 			}
+			System.out.println("Missing no: ");
+			System.out.println(missingNo);
+			System.out.println("Available no: ");
+			System.out.println(availableNo);
+			for(int i=0; i<triplets.length; i++) {
+				tripletPresent1 = false;
+				tripletPresent2 = false;
+				tripletPresent3 = false;
+				currentTriplet = triplets[i];
+				if(availableNo.contains(currentTriplet%10)) {
+					tripletPresent1 = true;
+					currentTriplet = currentTriplet/10;
+					if(availableNo.contains(currentTriplet%10)) {
+						tripletPresent2 = true;
+						currentTriplet = currentTriplet/10;
+						if(availableNo.contains(currentTriplet)) {
+							tripletPresent3 = true;
+							
+						}
+					}
+				}
+				if(tripletPresent1&&tripletPresent2&&tripletPresent3) {
+					availableTriplets.add(triplets[i]);
+				}
+				else {
+					missingTriplets.add(triplets[i]);
+				}
+			}
+			System.out.println("Set: "+"("+classifiedNo1+","+classifiedNo2+")");
+			System.out.println("Available triplets: ");
+			System.out.println(availableTriplets);
+			System.out.println("Missing triplets: ");
+			System.out.println(missingTriplets);
 		} else {
 			System.out.println("Enter the starting year: ");
 			startYear = in.nextInt();
@@ -89,7 +141,10 @@ public class RepeatMain {
 						digits.add(dayNoCal);
 						digits.add(monthNoCal);
 						digits.add(yearNoCal);
-						digits.add(findSum(dayNoCal + monthNoCal + yearNoCal, level + 1));
+						classifiedNo1 = dayNoCal; 
+						finalNo = findSum(dayNoCal + monthNoCal + yearNoCal, level + 1);
+						digits.add(finalNo);
+						classifiedNo2 = finalNo;
 						for (int i = 1; i < 10; i++) {
 							if (!digits.contains(i)) {
 								isNumRepeating = true;
@@ -98,11 +153,19 @@ public class RepeatMain {
 						if (isNumRepeating) {
 
 						} else {
-							System.out.println(dayNo + ":" + monthNo + ":" + yearNo);
+							classifiedNo = classifiedNo1+","+classifiedNo2;
+							dateSets.putIfAbsent(classifiedNo,new ArrayList<>());
+							dateSets.get(classifiedNo).add(dayNo + ":" + monthNo + ":" + yearNo);
 						}
 
 					}
 				}
+			}
+			for(Entry<String, ArrayList> ee : dateSets.entrySet()) {
+				String key = ee.getKey();
+				ArrayList values = ee.getValue();
+				System.out.println("("+key+")");
+				System.out.println(values);
 			}
 		}
 	}
